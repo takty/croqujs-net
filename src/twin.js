@@ -66,15 +66,15 @@ class Twin {
 
 	_initializeDocument(text = '', filePath = null) {
 		const readOnly = filePath ? ((FS().statSync(filePath).mode & 0x0080) === 0) : false;  // Check Write Flag
-		const name = filePath ? PATH().basename(filePath, PATH().extname(filePath)) : '';
+		const name     = filePath ? PATH().basename(filePath, PATH().extname(filePath)) : '';
 		const baseName = filePath ? PATH().basename(filePath) : '';
-		const dirName = filePath ? PATH().dirname(filePath) : '';
+		const dirName  = filePath ? PATH().dirname(filePath) : '';
 
 		setTimeout(() => {
 			this.callStudyMethod('initializeDocument', text, filePath, name, baseName, dirName, readOnly);
 		}, 100);
 
-		this._filePath = filePath;
+		this._filePath   = filePath;
 		this._isReadOnly = readOnly;
 		this._isModified = false;
 		this._backup.setFilePath(filePath);

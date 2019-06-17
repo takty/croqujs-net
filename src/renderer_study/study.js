@@ -43,7 +43,29 @@ class Study {
 
 	_twinMessage(msg, ...args) {
 		ipcRenderer.send('fromRenderer_' + this._id, msg, ...args);
+		// this._client(msg, args);
 	}
+
+	// _client(msg, args) {
+	// 	if (!this._xhr) {
+	// 		const xhr = new XMLHttpRequest();
+	// 		xhr.onreadystatechange = () => {
+	// 			const READYSTATE_COMPLETED = 4;
+	// 			if (xhr.readyState == READYSTATE_COMPLETED) {
+	// 				const HTTP_STATUS_OK = 200;
+	// 				if (xhr.status === HTTP_STATUS_OK) {
+	// 					console.log(xhr.responseText);
+	// 				} else {
+	// 					console.log(xhr.status + xhr.statusText);
+	// 				}
+	// 			}
+	// 		}
+	// 		this._xhr = xhr;
+	// 	}
+	// 	// console.log('send');
+	// 	this._xhr.open('POST', 'http://localhost:8888/q');
+	// 	this._xhr.send(JSON.stringify({id: this._id, msg, args}));
+	// }
 
 	_constructorSecond() {
 		this._initEditor();

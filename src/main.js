@@ -10,12 +10,15 @@
 
 'use strict';
 
+// const http = require('http');
 const { app, globalShortcut } = require('electron');
 const require_ = (path) => { let r; return () => { return r || (r = require(path)); }; }
 
 const FS      = require_('fs');
 const PROCESS = require_('process');
 const Twin    = require('./twin.js');
+
+// require('./server.js');
 
 
 class Main {
@@ -54,6 +57,24 @@ class Main {
 			globalShortcut.unregisterAll();
 			app.quit();
 		});
+
+
+
+
+		// const server = http.createServer((req, res) => {
+		// 	req.setEncoding('utf-8');
+		// 	req.on('data', chunk => {
+		// 		const msg = JSON.parse(chunk);
+		// 		console.log(msg);
+		// 		for (let t of this._twins) {
+		// 			if (t._id == msg.id) {  // msg.id is string, but t._id is number
+		// 				if (t[msg.msg]) t[msg.msg](...msg.args);
+		// 			}
+		// 		}
+		// 	});
+		// });
+		// server.listen(8888);
+
 	}
 
 	_getArgPath() {
