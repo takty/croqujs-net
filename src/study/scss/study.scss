@@ -1,0 +1,171 @@
+/*
+ *
+ * Study Window Style
+ *
+ * @author Takuto Yanagida
+ * @version 2021-07-30
+ *
+ */
+
+
+$L-Red         : #e61e58;
+$L-Red-35      : #f6b0c5;
+$L-Red-15      : #fbdde6;
+$L-Orange      : #f5a200;
+$L-Orange-b    : #f18400;
+$L-Orange-50   : #fbd290;
+$L-Yellow      : #fdde00;
+$L-Yellow-35   : #fef3a6;
+$L-YellowGreen : #7eba2e;
+$L-PaleGreen   : #4db28d;
+$L-PaleGreen-25: #d2ece2;
+$L-Turquoise   : #005363;
+$L-Cyan        : #009ddf;
+$L-Aqua        : #60b3e5;
+$L-Aqua-60     : #a0d1ef;
+$L-Blue        : #2e449a;
+$L-Purple      : #9a74a3;
+$L-Brown       : #4e4138;
+$L-BodyBrown   : #7c6a5a;
+$L-LightGray   : #e8e8e8;
+$L-Gray        : #b5b5b6;
+$L-DarkGray    : #898989;
+
+$color-editor: #fdfdf9;
+$color-text  : #110;
+$color-window: #f8f8f8;
+$color-handle: #d7d7d7;
+
+$font-ui     : "Lucida Grande", "Hiragino Sans", "Yu Gothic UI", "Meiryo UI", sans-serif;
+$font-console: Inconsolata, 'Hiragino Sans', "Yu Gothic UI", "Meiryo UI", monospace;
+$font-size   : 14px;
+
+
+@use 'sass:math';
+
+@import 'editor';
+@import 'dialog-box';
+@import 'toolbar';
+@import 'side-menu';
+
+@font-face {
+	font-family: 'Inconsolata';
+	src: url('Inconsolata-dz.woff') format('woff');
+}
+
+@font-face {
+	font-family: 'LaMono';
+	font-weight: 400;
+	src: url('LaMono-Regular.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'LaMono';
+	font-weight: 700;
+	src: url('LaMono-Bold.ttf') format('truetype');
+}
+
+html, body {
+	height: 100%;
+	min-height: 100%;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+
+// Main Splitter ---------------------------------------------------------------
+
+
+#handle {
+	cursor: row-resize;
+	height: 8px;
+	background-color: $color-handle;
+	box-shadow: 0 0 2px rgba(#000, 0.15), 0 2px 4px rgba(#000, 0.25);
+	transition: 0.25s;
+
+	&:hover { background-color: $L-DarkGray; }
+}
+
+#editor {
+	height: 100%;
+}
+
+
+// Output Pane -----------------------------------------------------------------
+
+
+.sub {
+	overflow-y: scroll;
+	height: 0;
+	font-family: $font-console;
+
+	> div > div {  /* Output Pane -> inner -> items */
+		margin: 4px;
+		word-wrap: break-word;
+		line-height: 1.35;
+	}
+
+	div.std {
+		color: $color-text;
+		[class ^= 'type'] {
+			border-radius: 0.25em;
+			margin: 0 1px;
+			padding: 1px;
+
+			background-color: rgba($color-text, 0.05);
+			&:hover { background-color: rgba($color-text, 0.1); }
+		}
+		.type-function,
+		.type-set,
+		.type-weakset,
+		.type-map,
+		.type-weakmap,
+		.type-object,
+		[class ^= 'type-array'] {
+			display: inline-block;
+			vertical-align: top;
+
+			background-color: transparent;
+			border: 1px solid rgba($color-text, 0.1);
+			&:hover {
+				background-color: transparent;
+				border-color: rgba($color-text, 0.5);
+			}
+		}
+	}
+
+	div.err {
+		color: $L-Red;
+
+		span {
+			display: inline-block;
+
+			margin-right: 0.5rem;
+			padding: math.div(1rem - 0.85rem, 2) 0.25rem;
+
+			border-radius: 0.25rem;
+			background-color: $L-Red;
+			color: #fff;
+			font-size: 0.85rem;
+		}
+		div {
+			color: $L-Gray;
+			font-size: 0.8em;
+			margin-top: 0;
+		}
+	}
+
+	div.std,
+	div.err {
+		.count {
+			background-color: $L-PaleGreen;
+			border-radius: 2px;
+			color: #fff;
+			margin-right: 4px;
+			font-size: 0.8em;
+			padding: 2px 3px;
+		}
+	}
+
+}

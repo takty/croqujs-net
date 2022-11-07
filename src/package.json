@@ -1,0 +1,17 @@
+{
+	"name": "croqujs",
+	"version": "5.0.0",
+	"description": "The Playground for JavaScript",
+	"productName": "Croqujs",
+	"main": "main.js",
+	"author": "Takuto Yanagida",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/takty/croqujs.git"
+	},
+	"dependencies": {
+		"electron-log": "^4.4.1",
+		"electron-updater": "^4.3.9"
+	}
+}

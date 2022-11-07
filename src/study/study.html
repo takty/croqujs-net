@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Croqujs</title>
+
+	<link rel="stylesheet" href="lib/codemirror/lib/codemirror.css">
+	<link rel="stylesheet" href="lib/codemirror/addon/dialog/dialog.css">
+	<link rel="stylesheet" href="lib/codemirror/addon/hint/show-hint.css">
+	<link rel="stylesheet" href="lib/codemirror/addon/lint/lint.css">
+	<link rel="stylesheet" href="lib/codemirror/addon/tern/tern.css">
+	<link rel="stylesheet" href="lib/sweetalert2/sweetalert2.min.css">
+
+	<link rel="stylesheet" href="css/study.min.css">
+
+	<script src="lib/codemirror/lib/codemirror.js"></script>
+	<script src="lib/codemirror/mode/javascript/javascript.js"></script>
+	<script src="lib/codemirror/addon/comment/comment.js"></script>
+	<script src="lib/codemirror/addon/display/rulers.js"></script>
+	<script src="lib/codemirror/addon/dialog/dialog.js"></script>
+	<script src="lib/codemirror/addon/edit/matchbrackets.js"></script>
+	<script src="lib/codemirror/addon/edit/closebrackets.js"></script>
+	<script src="lib/codemirror/addon/hint/show-hint.js"></script>
+	<script src="lib/codemirror/addon/lint/lint.js"></script>
+	<script src="lib/codemirror/addon/scroll/annotatescrollbar.js"></script>
+	<script src="lib/codemirror/addon/search/search.js"></script>
+	<script src="lib/codemirror/addon/search/searchcursor.js"></script>
+	<script src="lib/codemirror/addon/search/match-highlighter.js"></script>
+	<script src="lib/codemirror/addon/selection/active-line.js"></script>
+	<script src="lib/codemirror/addon/selection/mark-selection.js"></script>
+	<script src="lib/codemirror/addon/tern/tern.js"></script>
+
+	<script src="lib/sweetalert2/sweetalert2.min.js"></script>
+	<script src="lib/js-beautify/beautify.js"></script>
+
+	<script src="lib/acorn/acorn.js"></script>
+	<script src="lib/acorn/acorn-loose.js"></script>
+	<script src="lib/acorn/walk.js"></script>
+
+	<script src="lib/tern/signal.js"></script>
+	<script src="lib/tern/tern.js"></script>
+	<script src="lib/tern/def.js"></script>
+	<script src="lib/tern/comment.js"></script>
+	<script src="lib/tern/infer.js"></script>
+	<script src="lib/tern/condense.js"></script>
+
+	<script src="editor.js"></script>
+	<script src="error-translator.js"></script>
+	<script src="side-menu.js"></script>
+	<script src="dialog-box.js"></script>
+	<script src="toolbar.js"></script>
+	<script src="config.js"></script>
+	<script src="output-pane.js"></script>
+	<script src="util.js"></script>
+	<script src="winstate.js"></script>
+	<script src="study.js"></script>
+</head>
+<body>
+	<div id="splitter">
+		<div class="main">
+			<div class="toolbar toolbar-shadow">
+				<div class="btn menu" data-icon="menu"></div>
+				<div class="btn" data-cmd="save" data-icon="save"></div>
+				<div class="btn" data-cmd="saveCopy" data-icon="save-copy"></div>
+				<div class="filler"></div>
+				<div class="btn" data-cmd="undo" data-icon="undo"></div>
+				<div class="btn" data-cmd="copy" data-icon="copy"></div>
+				<div class="btn" data-cmd="paste" data-icon="paste"></div>
+				<div class="filler"></div>
+				<div class="btn" data-cmd="tileWin" data-icon="columns"></div>
+				<div class="btn" data-cmd="run" data-icon="play"></div>
+				<div class="overlap"></div>
+			</div>
+			<div id="editor"></div>
+		</div>
+		<div id="handle"></div>
+		<div class="sub" id="output-pane"><div></div></div>
+	</div>
+	<div class="side-menu">
+		<div class="container">
+			<div class="caption" data-res="file"></div>
+			<ul class="menu">
+				<li class="mi" data-cmd="new" data-acc="CC+N"></li>
+				<li class="mi" data-cmd="open" data-acc="CC+O"></li>
+				<li class="mi" data-cmd="save" data-acc="CC+S" data-icon="save"></li>
+				<li class="mi" data-cmd="saveAs" data-acc="CC+Shift+S"></li>
+				<li class="mi" data-cmd="saveCopy" data-acc="CC+Alt+S" data-icon="save-copy"></li>
+				<li class="separator"></li>
+				<li class="menu-sub"><span data-res="export"></span><ul>
+					<li class="icon" data-cmd="exportAsLibrary" data-icon="book"></li>
+					<li class="icon" data-cmd="exportAsWebPage" data-icon="webpage"></li>
+				</ul></li>
+			</ul>
+			<div class="caption" data-res="edit"></div>
+			<ul class="menu">
+				<li class="menu-sub"><span></span><ul>
+					<li class="icon" data-cmd="undo" data-acc="*CC+Z" data-icon="undo"></li>
+					<li class="icon" data-cmd="redo" data-acc="*CC+Shift+Z" data-icon="redo"></li>
+				</ul></li>
+				<li class="menu-sub"><span data-res="edit"></span><ul>
+					<li class="icon" data-cmd="cut" data-acc="*CC+X" data-icon="cut"></li>
+					<li class="icon" data-cmd="copy" data-acc="*CC+C" data-icon="copy"></li>
+					<li class="icon" data-cmd="paste" data-acc="*CC+V" data-icon="paste"></li>
+				</ul></li>
+				<li class="mi" data-cmd="selectAll" data-acc="*CC+A"></li>
+				<li class="separator"></li>
+				<li class="mi" data-cmd="toggleComment" data-acc="CC+/"></li>
+				<li class="mi" data-cmd="format" data-acc="CC+B"></li>
+				<li class="separator"></li>
+				<li class="mi" data-cmd="find" data-acc="CC+F"></li>
+				<li class="mi" data-cmd="findNext" data-acc="!CC+G !F3"></li>
+				<li class="mi" data-cmd="replace" data-acc="CC+H"></li>
+				<li class="separator"></li>
+				<li class="mi" data-cmd="copyAsImage"></li>
+				<li class="mi" data-cmd="toggleAutoIndent"></li>
+			</ul>
+			<div class="caption" data-res="code"></div>
+			<ul class="menu">
+				<li class="mi" data-cmd="run" data-acc="CC+R" data-icon="play"></li>
+				<li class="mi" data-cmd="stop" data-acc="CC+T"></li>
+				<li class="separator"></li>
+				<li class="mi" data-cmd="runWithoutWindow" data-acc="CC+Shift+R"></li>
+			</ul>
+			<div class="caption" data-res="view"></div>
+			<ul class="menu">
+				<li class="menu-sub"><span class="stay" data-res="font" data-alt-cmd="toggleLamono"></span><ul>
+					<li class="icon stay" data-cmd="fontSizeMinus" data-acc="CC+-" data-icon="minus"></li>
+					<li class="icon stay" data-cmd="fontSizeReset" data-acc="CC+0" data-icon="reset"></li>
+					<li class="icon stay" data-cmd="fontSizePlus" data-acc="CC+Plus CC+= CC+;" data-icon="plus"></li>
+				</ul></li>
+				<li class="menu-sub"><span data-res="lineHeight"></span><ul>
+					<li class="icon stay" data-cmd="lineHeightMinus" data-icon="minus"></li>
+					<li class="icon stay" data-cmd="lineHeightReset" data-icon="reset"></li>
+					<li class="icon stay" data-cmd="lineHeightPlus" data-icon="plus"></li>
+				</ul></li>
+				<li class="mi" data-cmd="toggleSoftWrap"></li>
+				<li class="separator"></li>
+				<li class="mi" data-cmd="toggleFnLineNum"></li>
+				<li class="mi" data-cmd="toggleOutputPane" data-acc="CC+L"></li>
+				<li class="separator"></li>
+				<li class="menu-sub"><span data-res="language"></span><ul>
+					<li class="" data-cmd="setLanguageJa"></li>
+					<li class="" data-cmd="setLanguageEn"></li>
+				</ul></li>
+			</ul>
+			<div class="caption" data-res="about"></div>
+			<ul class="menu">
+				<li class="mi" data-cmd="showAbout">v%VERSION_FULL%</li>
+			</ul>
+		</div>
+	</div>
+	<script>
+		window.addEventListener('DOMContentLoaded', () => { new Study(); });
+	</script>
+</body>
+</html>

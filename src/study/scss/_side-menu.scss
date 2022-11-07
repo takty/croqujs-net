@@ -1,0 +1,151 @@
+/*
+ *
+ * Side Menu Style
+ *
+ * @author Takuto Yanagida
+ * @version 2021-09-07
+ *
+ */
+
+
+$menu-padding-v: 10px;
+
+
+.side-menu {
+	display : none;
+	position: absolute;
+	top     : $size-toolbar-button;
+	left    : 0;
+	bottom  : 0;
+	z-index : 9999;
+
+	background-color: $color-window;
+	box-shadow      : 0 2px 2px rgba(#000, 0.15), 2px 2px 2px rgba(#000, 0.25);
+
+	font-size  : $font-size;
+	line-height: 1;
+	font-family: $font-ui;
+
+	ul {
+		margin    : 0;
+		padding   : 0;
+		list-style: none;
+	}
+	li,
+	.caption {
+		margin     : 0;
+		user-select: none;
+	}
+	.container {
+		height    : 100%;
+		overflow-y: auto;
+
+		&::after {
+			content: '';
+			display: block;
+			height : 12px;
+		}
+	}
+	.caption {
+		padding    : $menu-padding-v 16px;
+		font-weight: bold;
+	}
+	.menu + .caption { margin-top: 12px; }
+	.menu {
+		.mi {
+			padding  : $menu-padding-v 16px $menu-padding-v 48px;
+			min-width: 160px;
+			&:hover { background-color: $L-LightGray; }
+
+			display    : flex;
+			align-items: center;
+
+			> span {  // Accelerator Keys
+				margin-left: 32px;
+				flex-grow  : 1;
+				text-align : right;
+				font-size  : 12px;
+				color      : $L-Gray;
+			}
+
+			position: relative;
+			> img {  // Icon
+				position   : absolute;
+				display    : inline-block;
+				width      : 28px;
+				height     : 28px;
+				margin-left: -32px;
+				top        : 50%;
+				transform  : translateY(-50%);
+			}
+		}
+		.menu-sub {
+			padding: 0 16px 0 48px;
+			display: flex;
+
+			> span {
+				padding    : $menu-padding-v 16px $menu-padding-v 0;
+				flex-grow  : 1;
+				white-space: nowrap;
+				color      : $L-DarkGray;
+				font-weight: bold;
+			}
+			> ul {
+				margin-right: -10px;
+				display     : inline-flex;
+				color       : $L-DarkGray;
+
+				> li {
+					padding  : $menu-padding-v 10px;
+					min-width: 18px;
+					&:hover { background-color: $L-LightGray; }
+				}
+
+				> li.icon {
+					max-width : 28px;
+					max-height: 28px;
+					padding   : 3px 6px;
+
+					img {
+						width : 28px;
+						height: 28px;
+					}
+					&.disabled img {
+						opacity: 0.25;
+					}
+				}
+
+				.checked {
+					background-color: $L-LightGray;
+				}
+			}
+		}
+		.separator {
+			height : 12px;
+			padding: 0;
+			pointer-events: none;
+		}
+		.separator.icon {
+			width: 12px;
+		}
+		> [data-cmd].checked {
+			position: relative;
+			&::before {
+				content    : '';
+				position   : absolute;
+				display    : inline-block;
+				margin-left: -32px;
+				width      : 28px;
+				height     : 28px;
+
+				background-image   : url('icon-check.svg');
+				background-position: center center;
+				background-size    : contain;
+			}
+		}
+		[data-cmd].disabled {
+			pointer-events: none;
+			color         : $L-Gray;
+		}
+	}
+}

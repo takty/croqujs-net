@@ -1,0 +1,132 @@
+/**
+ *
+ * SweetAlert2 (CSS)
+ *
+ * @author Takuto Yanagida
+ * @version 2021-09-08
+ *
+ */
+
+
+.swal2-container.swal2-backdrop-show {
+	background: rgba(#000, 0.5);
+	outline: none;
+}
+
+.swal2-popup {
+	box-shadow: 0 0 0.25rem rgba(#000, 0.15), 0 0.25rem 0.75rem rgba(#000, 0.25);
+	user-select: none;
+
+	font-family: $font-ui;
+	font-size: $font-size;
+	color: rgba(#000, 0.95);
+}
+
+.swal2-icon {
+	&.swal2-info {
+		border-color: rgba($L-Aqua, 0.2);
+		color: $L-Aqua;
+	}
+	&.swal2-error {
+		border-color: rgba($L-Red, 0.2);
+		.line { background-color: $L-Red; }
+	}
+	&.swal2-warning {
+		border-color: rgba($L-Orange, 0.2);
+		color: $L-Orange;
+		line-height: 1.25;
+	}
+	&.swal2-success {
+		border-color: $L-YellowGreen;
+		.placeholder { border-color: rgba($L-YellowGreen, 0.2); }
+		.line { background-color: $L-YellowGreen; }
+	}
+}
+
+.swal2-html-container {
+	display: flex !important;
+	flex-direction: column;
+    align-items: center;
+
+	padding: 1rem 2rem 0;
+
+	color: inherit;
+	font-size: inherit;
+	line-height: 150%;
+	text-align: left;
+
+	h1 {
+		width: 100%;
+		margin: { top: 0; bottom: 0.5rem; }
+		span {
+			font-size: 14px;
+			font-weight: normal;
+		}
+	}
+	> div {
+		width: 100%;
+	}
+	code {
+		font-family: $font-console;
+		font-size: 12px;
+		line-height: 135%;
+	}
+	ul {
+		margin: { top: 0.5rem; bottom: 1rem; }
+		max-height: 7.5rem;
+		overflow-y: auto;
+		line-height: 135%;
+	}
+}
+
+.swal2-popup {
+	.swal2-input {
+		font-family: $font-console;
+		font-size: inherit;
+		color: inherit;
+	}
+	.swal2-styled {
+		margin: 0.5rem 0.75rem;
+		padding: 0 1rem;
+		min-width: 8rem;
+		min-height: 2.5rem;
+
+		transition: 0.25s;
+
+		font-family: inherit;
+		line-height: 1;
+
+		&.swal2-confirm {
+			background-color: $L-Orange;
+			&:hover { background-color: $L-Orange-b; }
+		}
+		&.swal2-cancel {
+			background-color: $L-Gray;
+			&:hover { background-color: $L-DarkGray; }
+		}
+		&:focus {
+			box-shadow: 0 0.25rem 0.75rem rgba(#000, 0.25);
+			outline: none;
+		}
+	}
+}
+
+@keyframes pulse-warning {
+	0%   { border-color: $L-Orange; }
+	100% { border-color: rgba($L-Orange, 0.2); }
+}
+
+.swal2-popup.prompt-with-option {
+	.swal2-html-container {
+		div:first-child {
+			text-align: left;
+		}
+	}
+	.swal2-input {
+		width: 100%;
+		margin: { left: 0; right: 0; }
+	}
+	.swal2-checkbox-opt {
+		margin: 1rem auto 0;
+	}
+}

@@ -1,0 +1,50 @@
+{
+	"fontSet": "Inconsolata, \"Hiragino Sans\", \"BIZ UDGothic\", \"Yu Gothic Medium\", Meiryo, monospace",
+	"defaultExt": ".js",
+	"jsHintOpt": {
+		"bitwise": true,
+		"curly": true,
+		"eqeqeq": true,
+		"esversion": 10,
+		"latedef": false,
+		"strict": false,
+		"undef": false,
+		"unused": false,
+		"varstmt": true,
+		"expr": false,
+		"plusplus": true,
+		"browser": true
+	},
+	"jsBeautifyOpt": {
+		"preserve_newlines": true,
+		"jslint_happy": false,
+		"brace_style": "collapse",
+		"keep_array_indentation": false,
+		"space_before_conditional": true,
+		"unescape_strings": true,
+		"space_after_anon_function": true
+	},
+	"about": [
+		"<h1>Croqujs %VERSION_MAJOR% <span>/krō-ˈkē/</span></h1>",
+		"<div>",
+		"by Takuto Yanagida @ <a href=\"https://www.stxst.com/\" target=\"_blank\">Space-Time Inc.</a> / <a href=\"https://laccolla.com/\" target=\"_blank\">Laccolla</a><br>",
+		"v%VERSION_FULL%<br>",
+		"<br>",
+		"Powered by:<br>",
+		"<ul>",
+		"<li><code>Acorn v8.8.0</code></li>",
+		"<li><code>CodeMirror v5.65.9</code></li>",
+		"<li><code>Electron v21.0.1</code></li>",
+		"<li><code>electron-log v4.4.8</code></li>",
+		"<li><code>electron-updater v5.3.0</code></li>",
+		"<li><code>js-beautify v1.14.6</code></li>",
+		"<li><code>JSHint v2.13.5</code></li>",
+		"<li><code>SweetAlert2 v11.5.2</code></li>",
+		"<li><code>Tern v0.24.3</code></li>",
+		"<li><code>Inconsolata-dz v001.010</code></li>",
+		"</ul>",
+		"* \"https://ip-api.com/\" is used internally to make<br>",
+		"<code>navigator.geolocation.getCurrentPosition</code> available.",
+		"</div>"
+	]
+}

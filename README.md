@@ -1,4 +1,4 @@
-# croqujs-net
+# Croqujs
 
 The Playground for JavaScript
 
