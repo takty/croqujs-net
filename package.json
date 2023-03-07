@@ -1,12 +1,12 @@
 {
 	"name": "croqujs",
-	"version": "5.9.3",
+	"version": "6.0.0",
 	"description": "The Playground for JavaScript",
 	"productName": "Croqujs",
 	"main": "app/main.js",
 	"author": "Takuto Yanagida",
 	"license": "MIT",
-	"homepage": "https://github.com/takty/croqujs#readme",
+	"homepage": "https://github.com/takty/croqujs-net#readme",
 	"scripts": {
 		"start": "gulp",
 		"build": "gulp && gulp build",
@@ -15,7 +15,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/takty/croqujs.git"
+		"url": "git+https://github.com/takty/croqujs-net.git"
 	},
 	"dependencies": {
 		"acorn": "8.8.0",

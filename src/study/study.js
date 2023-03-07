@@ -1,21 +1,19 @@
 /**
- *
  * Study (JS)
  *
  * @author Takuto Yanagida
- * @version 2021-08-13
- *
+ * @version 2023-03-07
  */
 
-
 'use strict';
-
 
 class Study {
 
 	constructor() {
 		this._id = window.location.hash;
 		if (this._id) this._id = this._id.replace('#', '');
+
+		this._sp = new ServerProxy(this._id);
 
 		this._winstate = new WinState(window, '$winstate_study');
 		this._config = new Config({ fontSize: 16, lineHeight: 165, softWrap: false, functionLineNumber: false, autoIndent: true, language: 'ja' });
@@ -24,7 +22,7 @@ class Study {
 		this._permissions = {};
 		this._permissionRequests = [];
 
-		window.ipc.on('windowClose', () => this.executeCommand('close'));
+		this._sp.addWindowCloseListener(() => this.executeCommand('close'));
 		window.onbeforeunload = (e) => {
 			if (!this._isModified) return;
 			e.preventDefault();
@@ -34,7 +32,7 @@ class Study {
 
 		window.addEventListener('keydown', (e) => {
 			if (!this._editor._comp.hasFocus() && e.ctrlKey && e.key === 'a') e.preventDefault();
-			if ((e.ctrlKey || e.metaKey) && e.key === 'F12') this._notifyServer('onStudyToggleDevTools');
+			if ((e.ctrlKey || e.metaKey) && e.key === 'F12') this._sp.onStudyToggleDevTools();
 		});
 
 		this._initImeStateIndication();
@@ -50,11 +48,11 @@ class Study {
 			if (isImeOn) this._editor._elem.classList.remove('ime');
 			isImeOn = false;
 		}
-		window.addEventListener('compositionstart', (e) => {
+		window.addEventListener('compositionstart', () => {
 			if (!isImeOn) this._editor._elem.classList.add('ime');
 			isImeOn = true;
 		});
-		window.addEventListener('compositionend', (e) => {
+		window.addEventListener('compositionend', () => {
 			clearTimeout(st);
 			st = setTimeout(turnOffImeCursor, 1000);
 		});
@@ -70,14 +68,14 @@ class Study {
 
 	_initFileDrop() {
 		let flag = false;
-		window.addEventListener('dragenter', (e) => {
+		window.addEventListener('dragenter', () => {
 			flag = true;
 		}, true);
-		window.addEventListener('dragleave', (e) => {
+		window.addEventListener('dragleave', () => {
 			if (!flag) this._toolbar.hideMessage();
 			flag = false;
 		}, true);
-		window.addEventListener('dragover', (e) => {
+		window.addEventListener('dragover', e => {
 			if (flag) this._toolbar.showMessage(this._res.msg.openFile);
 			flag = false;
 			e.preventDefault();
@@ -128,11 +126,11 @@ class Study {
 
 		this._config.notify();
 
-		const [msg, arg] = await this._callServer('doReady');
+		const [msg, arg] = await this._sp.doReady();
 		this._handleServerResponse(msg, arg);
 
-		navigator.clipboard.readText().then(clipText => this._reflectClipboardState(clipText));
 		window.focus();
+		navigator.clipboard.readText().then(clipText => this._reflectClipboardState(clipText));
 	}
 
 	_initEditor() {
@@ -153,7 +151,7 @@ class Study {
 			if (this._editor.enabled()) {
 				this._isModified  = true;
 				this._historySize = this._editor._comp.getDoc().historySize();
-				this._notifyServer('onStudyModified');
+				this._sp.onStudyModified();
 				this._reflectState();
 			}
 			analyze();
@@ -233,7 +231,7 @@ class Study {
 			const ma = JSON.parse(v);
 
 			if (ma.message === 'error') {
-				this._notifyServer('onStudyErrorOccurred', ma.params);
+				this._sp.onStudyErrorOccurred(ma.params);
 				this._addErrorMessage(ma.params);
 			} else if (ma.message === 'output') {
 				this._outputPane.addOutput(ma.params);
@@ -241,7 +239,7 @@ class Study {
 				this._permissionRequests.push(ma.params);
 				if (this._permissionRequests.length === 1) this._handlePermission();
 			} else if (ma.message === 'toggleDevTools') {
-				this._notifyServer('onStudyToggleDevToolsField');
+				this._sp.onStudyToggleDevToolsField();
 			}
 		});
 	}
@@ -278,14 +276,6 @@ class Study {
 
 	// -------------------------------------------------------------------------
 
-
-	_notifyServer(msg, ...args) {
-		window.ipc.send('notifyServer_' + this._id, msg, ...args);
-	}
-
-	_callServer(msg, ...args) {
-		return window.ipc.invoke('callServer_' + this._id, msg, ...args);
-	}
 
 	_callField(method, ...args) {
 		window.localStorage.setItem('#field_' + this._id, JSON.stringify({ message: 'callFieldMethod', params: { method: method, args: args } }));
@@ -373,7 +363,7 @@ class Study {
 		const title = prefix + fn + fp + ' — ' + 'Croqujs';
 		if (window.title !== title) {
 			window.title = title;
-			this._notifyServer('onStudyTitleChanged', title);
+			this._sp.onStudyTitleChanged(title);
 		}
 	}
 
@@ -448,7 +438,7 @@ class Study {
 
 
 	_cmdTileWindow() {
-		this._callServer('doUnmaximize');
+		this._sp.doUnmaximize();
 		const x = window.screen.availLeft, y = window.screen.availTop;
 		const w = window.screen.availWidth / 2, h = window.screen.availHeight;
 		window.moveTo(x, y);
@@ -459,7 +449,7 @@ class Study {
 		window.localStorage.setItem('$winstate_field', JSON.stringify(state));
 	}
 
-	_cmdCopyAsImage() {
+	async _cmdCopyAsImage() {
 		const orig = this._editor.setSimpleView();
 		this._toolbar.showMessage(this._res.msg.copyingAsImage, true);
 
@@ -479,16 +469,15 @@ class Study {
 		let c = null;
 		let top = 0;
 
-		const capture = () => {
-			this._callServer('doCapturePage', r).then(([url, scaleFactor]) => {
-				if (c === null) c = this._createTempCanvas(r.width, height, scaleFactor);
-				top += topDelta;
-				const finished = (top > height);
-				setTimeout(() => {
-					this._addImageToCanvas(c, comp.getScrollInfo().top * scaleFactor, url, finished);
-					this._goNextStep(top, finished, orig, capture);
-				}, 0);
-			});
+		const capture = async () => {
+			const [url, scaleFactor] = await this._sp.doCapturePage(r);
+			if (c === null) c = this._createTempCanvas(r.width, height, scaleFactor);
+			top += topDelta;
+			const finished = (top > height);
+			setTimeout(() => {
+				this._addImageToCanvas(c, comp.getScrollInfo().top * scaleFactor, url, finished);
+				this._goNextStep(top, finished, orig, capture);
+			}, 0);
 		};
 		setTimeout(capture, 400);
 	}
@@ -506,7 +495,7 @@ class Study {
 			const ctx = c.getContext('2d');
 			ctx.drawImage(img, 0, y);
 			if (finished) {
-				const [res] = await this._callServer('doCopyImageToClipboard', c.toDataURL('image/png'));
+				const [res] = await this._sp.doCopyImageToClipboard(c.toDataURL('image/png'));
 				if (res === 'success') this._dialogBox.showAlert(this._res.msg['copiedAsImage'], 'success');
 			}
 		};
@@ -531,17 +520,17 @@ class Study {
 	// -------------------------------------------------------------------------
 
 
-	executeCommand(cmd, close = true) {
+	async executeCommand(cmd, close = true) {
 		if (close) this._sideMenu.close();
 		this._editor.setLineSelectionMode(false);
 
 		const minmax = (val, min, max) => Math.min(max, Math.max(min, val));
 
-		setTimeout(() => {
+		setTimeout(async () => {
 			const cfg = this._config;
 
-			if (this._executeCommandFile(cmd)) return;
-			if (this._executeCommandCode(cmd)) return;
+			if (await this._executeCommandFile(cmd)) return;
+			if (await this._executeCommandCode(cmd)) return;
 
 			if      (cmd === 'undo')          this._editor.undo();
 			else if (cmd === 'redo')          this._editor.redo();
@@ -608,31 +597,52 @@ class Study {
 	// -------------------------------------------------------------------------
 
 
-	_executeCommandFile(cmd) {
+	async _executeCommandFile(cmd) {
 		switch (cmd) {
 			case 'new':
-				this._handleOpening(this._res.msg.confirmNew, 'doNew');
+				if (await this._beforeHandleOpening(this._res.msg.confirmNew)) {
+					const [msg, arg] = await this._sp.doNew();
+					this._handleServerResponse(msg, arg);
+				}
 				return true;
 			case 'open':
-				this._handleOpening(this._res.msg.confirmOpen, 'doOpen');
+				if (await this._beforeHandleOpening(this._res.msg.confirmOpen)) {
+					const [msg, arg] = await this._sp.doOpen();
+					this._handleServerResponse(msg, arg);
+				}
 				return true;
 			case 'close':
-				this._handleOpening(this._res.msg.confirmExit, 'doClose', this._editor.value());
+				if (await this._beforeHandleOpening(this._res.msg.confirmExit)) {
+					const [msg, arg] = await this._sp.doClose(this._editor.value());
+					this._handleServerResponse(msg, arg);
+				}
 				return true;
 			case 'save':
-				this._handleSaving('doSave', this._res.dialogTitle.saveAs);
+				{
+					const [msg, arg] = await this._sp.doSave(this._editor.value(), this._res.dialogTitle.saveAs);
+					this._handleServerResponse(msg, arg);
+				}
 				return true;
 			case 'saveAs':
-				this._handleSaving('doSaveAs', this._res.dialogTitle.saveAs);
+				{
+					const [msg, arg] = await this._sp.doSaveAs(this._editor.value(), this._res.dialogTitle.saveAs);
+					this._handleServerResponse(msg, arg);
+				}
 				return true;
 			case 'saveCopy':
-				this._handleSaving('doSaveCopy', this._res.dialogTitle.saveCopy);
+				{
+					const [msg, arg] = await this._sp.doSaveCopy(this._editor.value(), this._res.dialogTitle.saveCopy);
+					this._handleServerResponse(msg, arg);
+				}
 				return true;
 			case 'exportAsLibrary':
 				this._onExportAsLibrary();
 				return true;
 			case 'exportAsWebPage':
-				this._handleSaving('doExportAsWebPage');
+				{
+					const [msg, arg] = await this._sp.doExportAsWebPage(this._editor.value());
+					this._handleServerResponse(msg, arg);
+				}
 				return true;
 		}
 		return false;
@@ -642,56 +652,56 @@ class Study {
 		e.preventDefault();
 		if (e.dataTransfer.files.length > 0) {
 			const filePath = e.dataTransfer.files[0].path;
-			this._handleOpening(this._res.msg.confirmOpen, 'doFileDropped', filePath);
+			if (await this._beforeHandleOpening(this._res.msg.confirmOpen)) {
+				const [msg, arg] = await this._sp.doFileDropped(filePath);
+				this._handleServerResponse(msg, arg);
+			}
 		}
 	}
 
 	async _onExportAsLibrary() {
 		const { value: [libName, flag] } = await this._dialogBox.showPromptWithOption(this._res.msg.enterLibName, '', this._res.msg.libName, this._name, this._res.msg.includeUsedLibs);
 		if (libName) {
-			this._handleSaving('doExportAsLibrary', libName, flag, JSON.stringify(this._codeStructure));
+			const [msg, arg] = await this._sp.doExportAsLibrary(this._editor.value(), libName, flag, JSON.stringify(this._codeStructure));
+			this._handleServerResponse(msg, arg);
 		}
 		return true;
 	}
 
-	async _handleOpening(text, method, ...args) {
+	async _beforeHandleOpening(text) {
 		if (this._isModified) {
 			const { value: res } = await this._dialogBox.showConfirm(text, 'warning');
-			if (!res) return;
+			if (!res) return false;
 		}
-		const [msg, arg] = await this._callServer(method, ...args);
-		this._handleServerResponse(msg, arg);
-	}
-
-	async _handleSaving(method, ...opts) {
-		const [msg, arg] = await this._callServer(method, this._editor.value(), ...opts);
-		this._handleServerResponse(msg, arg);
+		return true;
 	}
 
 
 	// -------------------------------------------------------------------------
 
 
-	_executeCommandCode(cmd) {
+	async _executeCommandCode(cmd) {
 		switch (cmd) {
 			case 'run':
-				this._handleExecution('doRun');
+				{
+					await this._resetOutputPane();
+					const [msg, arg] = await this._sp.doRun(this._editor.value());
+					this._handleServerResponse(msg, arg);
+				}
 				return true;
 			case 'runWithoutWindow':
-				this._handleExecution('doRunWithoutWindow');
+				{
+					await this._resetOutputPane();
+					const [msg, arg] = await this._sp.doRunWithoutWindow(this._editor.value());
+					this._handleServerResponse(msg, arg);
+				}
 				return true;
 			case 'stop':
 				this._callField('closeProgram');
-				this._notifyServer('onStudyProgramClosed');
+				this._sp.onStudyProgramClosed();
 				return true;
 		}
 		return false;
-	}
-
-	async _handleExecution(method) {
-		await this._resetOutputPane();
-		const [msg, arg] = await this._callServer(method, this._editor.value());
-		this._handleServerResponse(msg, arg);
 	}
 
 	_resetOutputPane() {

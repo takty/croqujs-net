@@ -56,8 +56,8 @@ class Twin {
 		});
 
 		this._createStudyWindow();
-		// this._studyWin.show();
-		// this._studyWin.webContents.toggleDevTools();
+		this._studyWin.show();
+		this._studyWin.webContents.toggleDevTools();
 	}
 
 	_createStudyWindow() {
